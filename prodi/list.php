@@ -8,8 +8,9 @@
     <style>
         *{
             margin: 0px;
-            padding: 0px;
+            padding: 0px;    
         }
+        
         .popup-overlay {
             display: none;
             position: fixed;
@@ -83,55 +84,51 @@
 
 <body>
 
-   <div style="background-color: #1d232a; margin-bottom: 25px; height: 50px; display: flex; justify-content: space-between;">
-        <div style="color: white; font-size: 25px; margin: auto 0px auto 12px;">Mahasiswa</div>
+    <div style="background-color: #1d232a; margin-bottom: 25px; height: 50px; display: flex; justify-content: space-between;">
+        <div style="color: white; font-size: 25px; margin: auto 0px auto 12px;">Prodi</div>
         <div style="display: flex; gap: 6px; margin: auto 12px auto 0px;">
             <a href="../Home" style="text-decoration: none; color: #e4e4e4;">Home</a>
-            <a href="/Mahasiswa/create.php" style="text-decoration: none; color: #e4e4e4;">Mahasiswa</a>
-            <a href="../Prodi/create.php" style="text-decoration: none; color: #e4e4e4;">Prodi</a>
+            <a href="../Mahasiswa/create.php" style="text-decoration: none; color: #e4e4e4;">Mahasiswa</a>
+            <a href="/Prodi/create.php" style="text-decoration: none; color: #e4e4e4;">Prodi</a>
         </div>
-        
     </div>
+
     <div style="display: flex; flex-direction: column; justify-content: center;">
 
         <div style="display: flex; justify-content: center; flex-direction: column; margin: 6px auto; width: 750px;">
-            <h1 style="text-align: center;">List data Mahasiswa</h1>
+            <h1 style="text-align: center;">List data Prodi</h1>
 
             <table border="1" cellpadding="10" cellspacing="0" style="text-align: center;">
                 <thead style="background-color: #00bafe; color: #042e49;">
                     <tr>
                         <th>No</th>
-                        <th>Nim</th>
-                        <th>Nama Mahasiswa</th>
-                        <th>Tanggal Lahir</th>
-                        <th>Alamat</th>
                         <th>Nama Prodi</th>
+                        <th>Jenjang</th>
+                        <th>Keterangan</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
 
                 <?php
-                include('./Mahasiswa/db_connection.php');
+                include('../Mahasiswa/db_connection.php');
 
-                $tampil = mysqli_query($koneksi, 'SELECT mahasiswa.*, prodi.nama_prodi FROM mahasiswa JOIN prodi ON mahasiswa.id_prodi = prodi.id');
+                $tampil = mysqli_query($koneksi, 'SELECT * FROM prodi');
                 $no = 1;
                 while ($data = mysqli_fetch_array($tampil)) {
                 ?>
                     <tbody>
                         <tr>
                             <td><?php echo $no; ?></td>
-                            <td><?php echo $data['nim']; ?></td>
-                            <td><?php echo $data['nama_mhs']; ?></td>
-                            <td><?php echo $data['tgl_lahir']; ?></td>
-                            <td><?php echo $data['alamat']; ?></td>
                             <td><?php echo $data['nama_prodi']; ?></td>
+                            <td><?php echo $data['jenjang']; ?></td>
+                            <td><?php echo $data['keterangan']; ?></td>
                             <td>
-                                <div style="display: flex; justify-content: space-between; gap: 10px;">
+                                <div style="display: flex; justify-content: space-evenly;">
                                     <button style="background-color: #00d3bb; padding: 5px 15px; border-radius: 6px; border: none;">
-                                        <a href="./mahasiswa/edit.php?id=<?php echo $data['id'] ?>" style="text-decoration: none; color:#1d232a;">Edit</a>
+                                        <a href="edit.php?id=<?php echo $data['id'] ?>" style="text-decoration: none; color:#1d232a;">Edit</a>
                                     </button>
                                     <button class="btn-delete"
-                                        onclick="showDeletePopup(<?php echo $data['id']; ?>, '<?php echo addslashes($data['nama_mhs']); ?>')">
+                                        onclick="showDeletePopup(<?php echo $data['id']; ?>, '<?php echo addslashes($data['nama_prodi']); ?>')">
                                         Hapus
                                     </button>
                                 </div>
@@ -147,7 +144,7 @@
 
         <div style="display: flex; justify-content: center; border: 2px solid grey; width: 460px; margin: 12px auto ; background-color: #1d232a; border-radius: 6px;">
             <p style="color: white;">Klik <button style="margin: auto; background-color: #00d3bb; width: 60px; height: 30px; border-radius: 8px; margin-left: 6px; margin-right: 6px;">
-                    <a href="/Mahasiswa/create.php" style="text-decoration:none; color: #084d49;">Disini</a>
+                    <a href="create.php" style="text-decoration:none; color: #084d49;">Disini</a>
                 </button> untuk proses input buku tamu</p>
         </div>
     </div>
@@ -176,7 +173,7 @@
 
             document.getElementById('deletePopup').style.display = 'flex';
 
-            deleteUrl = `./Mahasiswa/hapus.php?id=${id}`;
+            deleteUrl = `hapus.php?id=${id}`;
         }
 
         function hideDeletePopup() {
