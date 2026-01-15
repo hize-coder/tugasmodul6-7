@@ -1,210 +1,154 @@
-<!DOCTYPE html>
+<?php
+session_start();
+
+if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
+    header("Location: login.php");
+    exit;
+}
+?>
+<!doctype html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>List Mahasiswa</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Data Akademik</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
     <style>
-        *{
-            margin: 0px;
-            padding: 0px;
-        }
-        .popup-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
+        body {
+            background: whitesmoke;
         }
 
-        .popup-content {
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            min-width: 300px;
-        }
-
-        .popup-buttons {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .popup-btn {
-            padding: 8px 20px;
+        .content-card {
+            border-radius: 16px;
             border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, .06);
         }
 
-        .btn-confirm {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .btn-cancel {
-            background-color: #6c757d;
-            color: white;
-        }
-
-        .btn-confirm:hover {
-            background-color: #c82333;
-        }
-
-        .btn-cancel:hover {
-            background-color: #5a6268;
-        }
-
-        .btn-delete {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            padding: 5px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-        }
-
-        .btn-delete:hover {
-            background-color: #c82333;
+        .navbar {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .06);
         }
     </style>
 </head>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
 
-   <div style="background-color: #1d232a; margin-bottom: 25px; height: 50px; display: flex; justify-content: space-between;">
-        <div style="color: white; font-size: 25px; margin: auto 0px auto 12px;">Mahasiswa</div>
-        <div style="display: flex; gap: 6px; margin: auto 12px auto 0px;">
-            <a href="../Home" style="text-decoration: none; color: #e4e4e4;">Home</a>
-            <a href="/Mahasiswa/create.php" style="text-decoration: none; color: #e4e4e4;">Mahasiswa</a>
-            <a href="../Prodi/create.php" style="text-decoration: none; color: #e4e4e4;">Prodi</a>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg bg-white sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.php">Data Akademik</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav gap-1">
+                    <a class="nav-link <?= (!isset($_GET['p']) || $_GET['p'] == 'home') ? 'active fw-semibold' : '' ?>"
+                        href="index.php">Home</a>
+
+                    <a class="nav-link <?= (isset($_GET['p']) && str_contains($_GET['p'], 'mhs')) ? 'active fw-semibold' : '' ?>"
+                        href="index.php?p=data_mhs">Mahasiswa</a>
+
+                    <a class="nav-link <?= (isset($_GET['p']) && str_contains($_GET['p'], 'prodi')) ? 'active fw-semibold' : '' ?>"
+                        href="index.php?p=data_prodi">Program Studi</a>
+                </div>
+
+                <div class="ms-auto d-flex align-items-center gap-2">
+                    <a href="pengguna/edit.php"
+                        class="btn btn-sm d-flex align-items-center gap-1"
+                        title="Edit Profil">
+                        <i class="bi bi-person-circle fs-5"></i>
+                        <span><?= htmlspecialchars($_SESSION['nama'] ?? 'Pengguna') ?></span>
+                    </a>
+
+                    <a href="logout.php" class="btn btn-outline-danger btn-sm">Logout</a>
+                </div>
+
+            </div>
         </div>
-        
-    </div>
-    <div style="display: flex; flex-direction: column; justify-content: center;">
+    </nav>
 
-        <div style="display: flex; justify-content: center; flex-direction: column; margin: 6px auto; width: 750px;">
-            <h1 style="text-align: center;">List data Mahasiswa</h1>
+    <!-- CONTENT -->
+    <div class="container py-4 flex-grow-1">
 
-            <table border="1" cellpadding="10" cellspacing="0" style="text-align: center;">
-                <thead style="background-color: #00bafe; color: #042e49;">
-                    <tr>
-                        <th>No</th>
-                        <th>Nim</th>
-                        <th>Nama Mahasiswa</th>
-                        <th>Tanggal Lahir</th>
-                        <th>Alamat</th>
-                        <th>Nama Prodi</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
+        <!-- JUDUL HALAMAN -->
+        <h4 class="fw-bold mb-3">
+            <?php
+            $p = $_GET['p'] ?? 'home';
+            if ($p == 'data_mhs') echo "Data Mahasiswa";
+            elseif ($p == 'create_mhs') echo "Tambah Mahasiswa";
+            elseif ($p == 'edit_mhs') echo "Edit Mahasiswa";
+            elseif ($p == 'hapus_mhs') echo "Hapus Mahasiswa";
+            elseif ($p == 'data_prodi') echo "Data Program Studi";
+            elseif ($p == 'create_prodi') echo "Tambah Program Studi";
+            elseif ($p == 'edit_prodi') echo "Edit Program Studi";
+            elseif ($p == 'hapus_prodi') echo "Hapus Program Studi";
+            else echo "Dashboard";
+            ?>
+        </h4>
+
+        <!-- CARD CONTENT -->
+        <div class="card content-card">
+            <div class="card-body p-4">
 
                 <?php
-                include('./Mahasiswa/db_connection.php');
+                $page = $_GET['p'] ?? 'home';
 
-                $tampil = mysqli_query($koneksi, 'SELECT mahasiswa.*, prodi.nama_prodi FROM mahasiswa JOIN prodi ON mahasiswa.id_prodi = prodi.id');
-                $no = 1;
-                while ($data = mysqli_fetch_array($tampil)) {
-                ?>
-                    <tbody>
-                        <tr>
-                            <td><?php echo $no; ?></td>
-                            <td><?php echo $data['nim']; ?></td>
-                            <td><?php echo $data['nama_mhs']; ?></td>
-                            <td><?php echo $data['tgl_lahir']; ?></td>
-                            <td><?php echo $data['alamat']; ?></td>
-                            <td><?php echo $data['nama_prodi']; ?></td>
-                            <td>
-                                <div style="display: flex; justify-content: space-between; gap: 10px;">
-                                    <button style="background-color: #00d3bb; padding: 5px 15px; border-radius: 6px; border: none;">
-                                        <a href="./mahasiswa/edit.php?id=<?php echo $data['id'] ?>" style="text-decoration: none; color:#1d232a;">Edit</a>
-                                    </button>
-                                    <button class="btn-delete"
-                                        onclick="showDeletePopup(<?php echo $data['id']; ?>, '<?php echo addslashes($data['nama_mhs']); ?>')">
-                                        Hapus
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                <?php
-                    $no++;
+                switch ($page) {
+                    case 'home':
+                        include "home.php";
+                        break;
+
+                    case 'data_mhs':
+                        include "mahasiswa/list.php";
+                        break;
+                    case 'create_mhs':
+                        include "mahasiswa/create.php";
+                        break;
+                    case 'edit_mhs':
+                        include "mahasiswa/gedit.php";
+                        break;
+                    case 'hapus_mhs':
+                        include "mahasiswa/ghapus.php";
+                        break;
+
+                    case 'data_prodi':
+                        include "prodi/list.php";
+                        break;
+                    case 'create_prodi':
+                        include "prodi/create.php";
+                        break;
+                    case 'edit_prodi':
+                        include "prodi/edit.php";
+                        break;
+                    case 'hapus_prodi':
+                        include "prodi/hapus.php";
+                        break;
+
+                    default:
+                        echo "<div class='alert alert-warning'>Halaman tidak ditemukan</div>";
+                        break;
                 }
                 ?>
-            </table>
-        </div>
 
-        <div style="display: flex; justify-content: center; border: 2px solid grey; width: 460px; margin: 12px auto ; background-color: #1d232a; border-radius: 6px;">
-            <p style="color: white;">Klik <button style="margin: auto; background-color: #00d3bb; width: 60px; height: 30px; border-radius: 8px; margin-left: 6px; margin-right: 6px;">
-                    <a href="/Mahasiswa/create.php" style="text-decoration:none; color: #084d49;">Disini</a>
-                </button> untuk proses input buku tamu</p>
-        </div>
-    </div>
-
-    <div id="deletePopup" class="popup-overlay">
-        <div class="popup-content">
-            <h3>Konfirmasi Hapus</h3>
-            <p id="popupMessage">Apakah Anda yakin ingin menghapus data ini?</p>
-            <div class="popup-buttons">
-                <button id="confirmDelete" class="popup-btn btn-confirm">Ya,Hapus</button>
-                <button id="cancelDelete" class="popup-btn btn-cancel">Batal</button>
             </div>
         </div>
     </div>
 
-    <script>
-        let studentIdToDelete = null;
-        let deleteUrl = '';
+    <!-- FOOTER -->
+    <footer class="border-top bg-white py-3 mt-auto">
+        <div class="container text-center text-muted small">
+            © <?= date('Y') ?> Data Akademik Mahasiswa
+        </div>
+    </footer>
 
-
-        function showDeletePopup(id, name) {
-            studentIdToDelete = id;
-
-            document.getElementById('popupMessage').textContent =
-                `Apakah Anda yakin ingin menghapus data "${name}"?`;
-
-            document.getElementById('deletePopup').style.display = 'flex';
-
-            deleteUrl = `./Mahasiswa/hapus.php?id=${id}`;
-        }
-
-        function hideDeletePopup() {
-            document.getElementById('deletePopup').style.display = 'none';
-            studentIdToDelete = null;
-        }
-
-        document.getElementById('confirmDelete').addEventListener('click', function() {
-            if (studentIdToDelete !== null) {
-                window.location.href = deleteUrl;
-            }
-        });
-
-        document.getElementById('cancelDelete').addEventListener('click', hideDeletePopup);
-
-        document.getElementById('deletePopup').addEventListener('click', function(e) {
-            if (e.target === this) {
-                hideDeletePopup();
-            }
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                hideDeletePopup();
-            }
-        });
-    </script>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

@@ -4,84 +4,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Data</title>
+    <title>Create Data Mahasiswa</title>
 </head>
 
 <body>
 
-    <?php
-    include('db_connection.php');
-    ?>
-    <div style="margin: auto; background-color: #141414; width: 500px; padding: 12px 12px; border-radius: 6px; ">
+<?php
+// koneksi database (sesuaikan lokasi file)
+include "./koneksi.php";
+?>
 
-        <form method="post">
-            <h1 style="text-align: center; color:white;">Input Data Mahasiswa</h1>
+<div style="margin: auto; background-color: #141414; width: 500px; padding: 12px; border-radius: 6px;">
 
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <label for="nim" style="color: white;">Nim</label>
-                    <input type="text" name="nim" id="nim" placeholder="Masukkan Nim Anda" style="width: 480px; height: 32px;">
-                </div>
+    <form method="post">
+        <h1 style="text-align: center; color:white;">Input Data Mahasiswa</h1>
 
-                <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <label for="nama_mhs" style="color: white;">Nama</label>
-                    <input type="text" name="nama_mhs" id="nama_mhs" placeholder="Masukkan Nama Anda" style="width: 480px; height: 32px;">
-                </div>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
 
-                <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <label for="tgl_lahir" style="color: white;">Tanggal Lahir</label>
-                    <input type="date" name="tgl_lahir" id="tgl_lahir" style="width: 120px; height: 40px;">
-                </div>
+            <label style="color:white;">NIM</label>
+            <input type="text" name="nim" required style="height:32px;">
 
-                <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <label for="alamat" style="color: white;">Alamat</label>
-                    <input type="text" name="alamat" id="alamat" placeholder="Masukkan Alamat Anda" style="width: 480px; height: 32px;">
-                </div>
+            <label style="color:white;">Nama Mahasiswa</label>
+            <input type="text" name="nama_mhs" required style="height:32px;">
 
-                <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <label for="tgl_lahir" style="color: white;">Prodi</label>
-                    <select name="prodi" id="prodi" style="height: 32px; margin-bottom: 12px;">
-                        <option value="" disabled selected>Pilih Prodi</option>
-                        <?php
-                        $tampil = mysqli_query($koneksi, 'SELECT * FROM prodi');
+            <label style="color:white;">Tanggal Lahir</label>
+            <input type="date" name="tgl_lahir" required style="height:32px;">
 
-                        while ($data = mysqli_fetch_array($tampil)) {
-                        ?>
-                            <option value="<?php echo $data['id'] ?>"><?php echo $data['nama_prodi'] ?></option>
-                        <?php
-                        }
-                        ?>
-                    </select>
-                </div>
+            <label style="color:white;">Alamat</label>
+            <input type="text" name="alamat" required style="height:32px;">
 
-                <div style="display: flex; flex-direction: row; gap:12px; justify-content: space-between;">
-                    <button type="submit" name="Submit" style="background-color: #2779a9ff; color: #f7f9fa; border-radius: 6px; width: 60px; height: 30px;">Submit</button>
-                    <button type="reset" name="Reset" style="background-color: #2779a9ff; color: #f7f9fa; border-radius: 6px; width: 60px; height: 30px; margin-right: 12px;">Reset</button>
-                </div>
-        </form>
-    </div>
+            <label style="color:white;">Program Studi</label>
+            <select name="id_prodi" required style="height:32px;">
+                <option value="">-- Pilih Prodi --</option>
+                <?php
+                $q = mysqli_query($koneksi, "SELECT * FROM prodi");
+                while ($p = mysqli_fetch_assoc($q)) {
+                    echo "<option value='{$p['id']}'>{$p['nama_prodi']}</option>";
+                }
+                ?>
+            </select>
 
-    <?php
+            <div style="display:flex; justify-content:space-between; margin-top:12px;">
+                <button type="submit" name="Submit"
+                    style="background:#2779a9; color:white; border-radius:6px; width:80px; height:32px;">
+                    Submit
+                </button>
 
-    if (isset($_POST['Submit'])) {
-        $nim = $_POST['nim'];
-        $nama = $_POST['nama_mhs'];
-        $tgl_lahir = $_POST['tgl_lahir'];
-        $alamat = $_POST['alamat'];
-        $prodi = $_POST['prodi'];
+                <button type="reset"
+                    style="background:#6c757d; color:white; border-radius:6px; width:80px; height:32px;">
+                    Reset
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
 
-        $sql = mysqli_query($koneksi, "INSERT INTO mahasiswa(nim,nama_mhs,tgl_lahir,alamat,id_prodi)
-            VALUES ('$nim', '$nama', '$tgl_lahir', '$alamat', '$prodi')");
+<?php
+// PROSES SIMPAN
+if (isset($_POST['Submit'])) {
 
-        if ($sql) {
-            echo "Terimakasih telah mengisi data mahasiswa <br>";
-            echo "<a style='color :#2779a9ff; ' href=../index.php>Tampilkan list data mahasiswa</a>";
-        } else {
-            echo "Proses input data mahasiswa";
-        }
+    $nim       = $_POST['nim'];
+    $nama      = $_POST['nama_mhs'];
+    $tgl       = $_POST['tgl_lahir'];
+    $alamat    = $_POST['alamat'];
+    $id_prodi  = $_POST['id_prodi'];
+
+    $sql = mysqli_query(
+        $koneksi,
+        "INSERT INTO mahasiswa (nim, nama_mhs, tgl_lahir, alamat, id_prodi)
+         VALUES ('$nim', '$nama', '$tgl', '$alamat', '$id_prodi')"
+    );
+
+    if ($sql) {
+        echo "<p style='color:lime; text-align:center; margin-top:10px;'>
+                Data mahasiswa berhasil disimpan
+              </p>
+              <p style='text-align:center;'>
+                <a href='../index.php?p=data_mhs' style='color:#2779a9;'>Lihat Data Mahasiswa</a>
+              </p>";
+    } else {
+        echo "<p style='color:red; text-align:center;'>Gagal menyimpan data</p>";
     }
+}
+?>
 
-    ?>
 </body>
-
 </html>
