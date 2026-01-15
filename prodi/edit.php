@@ -15,7 +15,7 @@
 
 <body>
 
-   <div style="background-color: #1d232a; margin-bottom: 25px; height: 50px; display: flex; justify-content: space-between;">
+    <div style="background-color: #1d232a; margin-bottom: 25px; height: 50px; display: flex; justify-content: space-between;">
         <div style="color: white; font-size: 25px; margin: auto 0px auto 12px;">Prodi</div>
         <div style="display: flex; gap: 6px; margin: auto 12px auto 0px;">
             <a href="../Home" style="text-decoration: none; color: #e4e4e4;">Home</a>
@@ -25,7 +25,7 @@
     </div>
 
     <?php
-    include('../Mahasiswa/db_connection.php');
+    include('./Mahasiswa/db_connection.php');
 
     $edit = mysqli_query($koneksi, "SELECT * FROM prodi WHERE id = $_GET[id]");
     $data = mysqli_fetch_array($edit);
@@ -64,19 +64,34 @@
     </div>
 
     <?php
-
     if (isset($_POST['Submit'])) {
 
-        $update = mysqli_query($koneksi, "UPDATE prodi SET nama_prodi = '$_POST[nama_prodi] ', jenjang = '$_POST[jenjang]', keterangan = '$_POST[keterangan]' WHERE id = $_GET[id]");
+        $nama_prodi = $_POST['nama_prodi'];
+        $jenjang    = $_POST['jenjang'];
+        $keterangan = $_POST['keterangan'];
+        $id         = $_GET['id'];
+
+        $update = mysqli_query(
+            $koneksi,
+            "UPDATE prodi SET 
+            nama_prodi='$nama_prodi',
+            jenjang='$jenjang',
+            keterangan='$keterangan'
+         WHERE id='$id'"
+        );
 
         if ($update) {
-            echo "Terimakasih telah mengedit data prodi <br>";
-            echo "<a href=list.php style='text-align:center;'>Tampilkan list tamu</a>";
+            echo "
+            <script>
+            window.location.href = list.php;
+            </script>";
+            exit;
         } else {
             echo "Proses edit data prodi gagal";
         }
     }
     ?>
+
 </body>
 
 </html>

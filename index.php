@@ -112,10 +112,10 @@ if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
                         include "mahasiswa/create.php";
                         break;
                     case 'edit_mhs':
-                        include "mahasiswa/gedit.php";
+                        include "mahasiswa/edit.php";
                         break;
                     case 'hapus_mhs':
-                        include "mahasiswa/ghapus.php";
+                        include "mahasiswa/hapus.php";
                         break;
 
                     case 'data_prodi':
